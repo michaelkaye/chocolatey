@@ -1,6 +1,9 @@
 ﻿$jdk_version = '8u152'
 $build = '16'
 $java_version = "1.8.0_152"
+$sha256 = @{ "i586" = "0655B87EE3AF08A457BE6058E14CA904DB4D69C89661E07883119BA9FF4703E8";
+             "x64" =  "E12AD29310D4823FA41E2F73C4D10A172BA170CD812F333EA0CE419341CE4BA2"}
+
 $uninstall_id = "180152"
 $id = "aa0333dd3019491ca4f6ddbe78cdb6d0"
 $script_path = $(Split-Path -parent $MyInvocation.MyCommand.Definition)
@@ -15,7 +18,11 @@ function use64bit($Forcei586 = $false) {
     $is64bitOS = Get-ProcessorBits 64
     return $is64bitOS
 }
- 
+
+function validate_hash($filename, $arch) {
+    Get-CheckSumValid -File $filename -Checksum $sha256.Get_Item($arch) -ChecksumType SHA256
+}
+
 function has_file($filename) {
     return Test-Path $filename
 }
@@ -95,7 +102,7 @@ function download-jdk($Forcei586 = $false) {
     $output_filename = Join-Path $script_path $filename
  
     $dummy = download-jdk-file $url $output_filename
- 
+    validate_hash $output_filename $arch
     return $output_filename
 }
  
